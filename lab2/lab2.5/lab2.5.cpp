@@ -156,7 +156,6 @@ int main(int argc, char* argv[])
 						{
 							colorArr[k] = color;
 							isStar = IsGrafStar(matrix, matrixSize, numberOfPoint, k);
-							cout << isStar << endl;
 							break;
 						}
 					}
