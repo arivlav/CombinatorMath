@@ -2,8 +2,9 @@
 #include <optional>
 #include <vector>
 #include <algorithm>
-#include <string>
 #include <fstream>
+#include <cmath>
+#include <iomanip>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ std::optional<Args> ParseArgs(int argc, char* argv[])
 	return args;
 }
 
-int ReadMatrixFromStream(std::ifstream& input, IntMatrix& field, int size)
+int ReadMatrixFromStream(ifstream& input, IntMatrix& field, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
@@ -49,7 +50,7 @@ int GetKirchhoffMatrix(const IntMatrix& inputMatrix, FloatMatrix& kirchhoffMatri
 {
 	for (int i = 0; i < size; i++)
 	{
-		float countPoints = 0.0f;
+		float countPoints = 0;
 		for (int j = 0; j < size; j++)
 		{
 			if (inputMatrix[i][j] > 0)
@@ -66,12 +67,12 @@ int GetKirchhoffMatrix(const IntMatrix& inputMatrix, FloatMatrix& kirchhoffMatri
 		{
 			return 0;
 		}
-		kirchhoffMatrix[i][i] = countPoints;
+		kirchhoffMatrix[i][i] = (float) countPoints;
 	}
 	return 1;
 }
 
-void PrintMatrix(IntMatrix& field, int size)
+void PrintMatrix(FloatMatrix& field, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
@@ -82,6 +83,28 @@ void PrintMatrix(IntMatrix& field, int size)
 		cout << endl;
 	}
 	cout << endl;
+}
+
+float CalculateDeterminant(FloatMatrix& matrix, int size) {
+	float determinant = 1.00;
+	
+	for (int i = 0; i < size; i++)
+	{
+		for (int k = i + 1; k < size; k++)
+		{
+			if (matrix[k][i] != 0)
+			{
+				float factor = matrix[k][i] / matrix[i][i];
+				for (int j = i; j < size; j++)
+				{
+					matrix[k][j] -= matrix[i][j] * factor;
+				}
+			}
+		}
+		PrintMatrix(matrix, size);
+		determinant *= matrix[i][i];
+	}
+	return fabs(determinant);
 }
 
 int main(int argc, char* argv[])
@@ -112,9 +135,11 @@ int main(int argc, char* argv[])
 	ReadMatrixFromStream(input, inputMatrix, matrixSize);
 
 	FloatMatrix kirchhoffMatrix(matrixSize, vector<float>(matrixSize, 0));
-	if (GetKirchhoffMatrix(inputMatrix, kirchhoffMatrix, matrixSize) != 0) {
-
+	if (GetKirchhoffMatrix(inputMatrix, kirchhoffMatrix, matrixSize) != 1) {
+		cout << "Wrong matrix" << endl;
+		return 1;
 	}
-
+	PrintMatrix(kirchhoffMatrix, matrixSize);
+	cout << "Result: " << fixed << setprecision(0) << CalculateDeterminant(kirchhoffMatrix, matrixSize) << endl;;
 	return 0;
 }
