@@ -90,6 +90,21 @@ float CalculateDeterminant(FloatMatrix& matrix, int size) {
 	
 	for (int i = 0; i < size; i++)
 	{
+		if (matrix[i][i] == 0) {
+			
+			int noZeroElementNumber = -1;
+			for (int k = i + 1; k < size; k++)
+			{
+				if (matrix[k][i] != 0 && noZeroElementNumber > -1)
+					noZeroElementNumber = k;
+			}
+
+			if (noZeroElementNumber > -1)
+				return 0;
+			else 
+				swap(matrix[i], matrix[noZeroElementNumber]);
+		}
+
 		for (int k = i + 1; k < size; k++)
 		{
 			if (matrix[k][i] != 0)
@@ -98,10 +113,10 @@ float CalculateDeterminant(FloatMatrix& matrix, int size) {
 				for (int j = i; j < size; j++)
 				{
 					matrix[k][j] -= matrix[i][j] * factor;
+					matrix[k][j] = round(matrix[k][j] * 1000) / 1000;
 				}
 			}
 		}
-		PrintMatrix(matrix, size);
 		determinant *= matrix[i][i];
 	}
 	return fabs(determinant);
@@ -139,7 +154,6 @@ int main(int argc, char* argv[])
 		cout << "Wrong matrix" << endl;
 		return 1;
 	}
-	PrintMatrix(kirchhoffMatrix, matrixSize);
 	cout << "Result: " << fixed << setprecision(0) << CalculateDeterminant(kirchhoffMatrix, matrixSize) << endl;;
 	return 0;
 }
